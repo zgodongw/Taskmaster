@@ -1,4 +1,5 @@
 from subprocess import *
+import sys
 import threading
 import json
 import re
@@ -155,11 +156,19 @@ def interface(data):
 	t.join()
 
 def main():
-	with open ("config.json", "r") as data_file:
-		filedata = json.load(data_file)
-		data_file.close()
+	try:
+		with open (sys.argv[1], "r") as data_file:
+			filedata = json.load(data_file)
+			data_file.close()
 	
-	interface(filedata['programs'])
+		interface(filedata['programs'])
+	except:
+		print("Error: Invalid config file!")
+		print("Config file must be a valid JSON file")
 
 if (__name__ == '__main__'):
-    main()
+	if (len(sys.argv) > 1):
+		main()
+	else:
+		print("Warning: No config file given")
+		print("Cannot run Taskmaster without config file")
