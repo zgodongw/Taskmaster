@@ -1,0 +1,36 @@
+{
+	"programs":
+	{
+		"filewriter":
+		{
+			"cmd": "./filewriter",
+			"autostart": false,
+			"numprocs": 1
+		},
+		"Sublime":
+		{
+			"cmd": "/Applications/Sublime Text.app/Contents/MacOS/Sublime Text",
+			"autostart": false,
+			"numprocs" : 1
+		},
+		"VirtualBox":
+		{
+			"cmd": "/usr/local/bin/VirtualBox",
+			"autostart": false,
+			"numprocs": 1
+		},
+		"Preview":
+		{
+			"cmd": "/Applications/Preview.app/Contents/MacOS/Preview",
+			"autostart": false,
+			"numprocs": 2
+		},
+		"list":
+		{
+			"cmd": "ls -l",
+			"autostart": false,
+			"numprocs" : 1
+		}
+
+	}
+}
