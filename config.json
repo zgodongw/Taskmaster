@@ -4,32 +4,41 @@
 		"filewriter":
 		{
 			"cmd": "./filewriter",
-			"autostart": false,
-			"numprocs": 1
+			"autostart": true,
+			"numprocs": 1,
+			"stdout": "./tmp/filewriter.stdout",
+			"stderr":"./tmp/filewriter.stderr"
 		},
 		"Sublime":
 		{
 			"cmd": "/Applications/Sublime Text.app/Contents/MacOS/Sublime Text",
 			"autostart": false,
-			"numprocs" : 1
+			"numprocs" : 1,
+			"stdout": "./tmp/Sublime.stdout",
+			"stderr": "./tmp/Sulime.stderr"
 		},
 		"VirtualBox":
 		{
 			"cmd": "/usr/local/bin/VirtualBox",
 			"autostart": false,
-			"numprocs": 1
+			"numprocs": 1,
+			"stdout": "./tmp/VirtualBox.stdout",
+			"stderr": "./tmp/VirtualBox.stderr"
 		},
 		"Preview":
 		{
 			"cmd": "/Applications/Preview.app/Contents/MacOS/Preview",
 			"autostart": false,
-			"numprocs": 2
+			"numprocs": 2,
+			"stdout" : "./tmp/Preview.stdout",
+			"stderr" : "./tmp/Preview.stderr"
 		},
 		"list":
 		{
 			"cmd": "ls -l",
 			"autostart": false,
-			"numprocs" : 1
+			"stdout" : "./tmp/list.stdout",
+			"stderr" : "./tmp/list.stderr"
 		}
 
 	}
