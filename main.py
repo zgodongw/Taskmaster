@@ -11,24 +11,67 @@ class taskmaster(threading.Thread):
 		self.data = data
 		self.prognames = list(self.data.keys())
 		self.proglist = {}
-		self.nameattributes = {}
+		self.nameattributes = {} #maybe i'll neeed this later
+
+	def setKeys(self):
+		for name in self.prognames:
+			try:
+				if 'numprocs' not in self.data[name]:
+					self.data[name]['numprocs'] = 1
+				if 'autostart' not in self.data[name]:
+					self.data[name]['autostart'] = False
+				if 'stdout' not in self.data[name]:
+					self.data[name]['stdout'] = None
+				if 'stderr' not in self.data[name]:
+					self.data[name]['stderr'] = None
+				if 'autorestart' not in self.data[name]:
+					self.data[name]['autorestart'] = "never"
+				if 'startretries' not in self.data[name]:
+					self.data[name]['startretries'] = 0
+				if 'starttime' not in self.data[name]:
+					self.data[name]['starttime'] = 1
+				if 'stoptime' not in self.data[name]:
+					self.data[name][''] = 1
+				if 'stopsignal' not in self.data[name]:
+					self.data[name]['stopsignal'] = 'TERM'
+				if 'exitcodes' not in self.data[name]:
+					self.data[name]['exitcodes'] = [0]
+				if 'workingdir' not in self.data[name]:
+					self.data[name]['workingdir'] = './'
+				if 'umask' not in self.data[name]:
+					self.data[name]['umask'] = 000
+			except:
+				pass
+
 		
 	def run(self):
+		self.setKeys()
 		for name in self.prognames:
+			try:
+				outfile = open(self.data[name]['stdout'], "w")
+			except:
+				outfile = PIPE
+			try:
+				errorfile = open(self.data[name]['stderr'], "w")
+			except:
+				errorfile = PIPE
 			dictpointer = {}
-			for x in range(self.data[name]['numprocs']):
-				try:
+			try:
+				for x in range(self.data[name]['numprocs']):
 					string = re.split('\ (?=-)', self.data[name]['cmd'])
 					if (self.data[name]['autostart'] == True):
-						Pobj = Popen(string)
+						Pobj = Popen(string, stdout=outfile, stderr=errorfile)
 						pid = Pobj.pid
 						dictpointer[x] = [Pobj, pid]
 					if (dictpointer != {}):
 						self.proglist[name] = dictpointer
 					else:
 						self.proglist[name] = None
-				except:
-					print("Error couldn't open " + name)
+			except:
+				print("Error couldn't open " + name)
+			finally:
+				outfile.close()
+				errorfile.close()
 		
 	def	kill(self, string):
 		#try:
@@ -42,6 +85,19 @@ class taskmaster(threading.Thread):
 							print(name + " has been killed!")
 		#except:
 		#	print(name + " is NOT RUNNING")
+
+	def	stopping(self, string):
+		#try:
+			for name in self.prognames:
+				for x in range(self.data[name]['numprocs']):
+					if (string[0] == "all" and (self.proglist[name] != None)):
+						kill = self.proglist[name][x][0].terminate()
+					elif (len(string) > 1):
+						if ((name == string[1] or string[1] == "all") and (self.proglist[name] != None)):
+							kill = self.proglist[name][x][0].terminate()
+							print(name + " has been stopped!")
+		#except:
+		#	print(name + " is NOT RUNNING")
 	
 	def	restarting(self, string):
 		for name in self.prognames:
@@ -49,7 +105,7 @@ class taskmaster(threading.Thread):
 			try:
 				for x in range(self.data[name]['numprocs']):
 					if (name == string[1] and self.proglist[name] != None):
-						kill = self.proglist[name].kill()
+						kill = self.proglist[name][x][0].kill()
 						tostart = re.split('\ (?=-)', self.data[name]['cmd'])
 						Pobj = Popen(tostart)
 						pid = Pobj.pid
@@ -62,19 +118,30 @@ class taskmaster(threading.Thread):
 
 	def	starting(self, string):
 		for name in self.prognames:
+			try:
+				outfile = open(self.data[name]['stdout'], "w")
+			except:
+				outfile = PIPE
+			try:
+				errorfile = open(self.data[name]['stderr'], "w")
+			except:
+				errorfile = PIPE
 			dictpointer = {}
 			try:
 				if ((name == string[1]) and (self.proglist[name] == None)):
 					for x in range(self.data[name]['numprocs']):
 						if (name == string[1]):
 							tostart = re.split('\ (?=-)', self.data[name]['cmd'])
-							Pobj = Popen(tostart, stdout=PIPE)
+							Pobj = Popen(tostart, stdout=outfile, stderr=errorfile)
 							pid = Pobj.pid
 							dictpointer[x] = [Pobj, pid]
 						if (dictpointer != {}):
 							self.proglist[name] = dictpointer
 			except:
 				print("Error couldn't open " + name)
+			finally:
+				outfile.close()
+				errorfile.close()
 	
 	def isRunning(self):
 		print("{:16} {:^16} {:^16} {:^16}\n".format("Name","Status", "pid", "exitcode"))
@@ -109,6 +176,14 @@ def check_command(name, t):
 			print("Syntax Error!\nUsage: kill <program>")
 		return 0
 
+	if ("stop" in name):
+		sub = name.split()
+		if (len(sub) == 2):
+			t.stopping(sub)
+		else:
+			print("Syntax Error!\nUsage: start <program>")
+		return 0
+
 	if name == "status":
 		t.isRunning()
 		return 0
@@ -141,19 +216,23 @@ def check_command(name, t):
 	return 1
 
 def interface(data):
-	t = taskmaster(data, )
-	t.start()
+	try:
+		t = taskmaster(data, )
+		t.start()
 
-	while (True):
-		command = input("Taskmaster--> ")
-		command = command.strip()
-		check = check_command(command, t)
-		if (check == -1):
-			break
-		if (check == 1):
-			print("Unknown command: " + command)
+		while (True):
+			command = input("Taskmaster--> ")
+			command = command.strip()
+			check = check_command(command, t)
+			if (check == -1):
+				break
+			if (check == 1):
+				print("Unknown command: " + command)
 	
-	t.join()
+		t.join()
+	except:
+		t.join()
+		print("An unkown error occured")
 
 def main():
 	try:
