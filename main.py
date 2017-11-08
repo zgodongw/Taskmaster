@@ -43,7 +43,6 @@ class taskmaster(threading.Thread):
 			except:
 				pass
 
-		
 	def run(self):
 		self.setKeys()
 		for name in self.prognames:
@@ -70,8 +69,11 @@ class taskmaster(threading.Thread):
 			except:
 				print("Error couldn't open " + name)
 			finally:
-				outfile.close()
-				errorfile.close()
+				try:
+					outfile.close()
+					errorfile.close()
+				except:
+					pass
 		
 	def	kill(self, string):
 		#try:
@@ -140,8 +142,11 @@ class taskmaster(threading.Thread):
 			except:
 				print("Error couldn't open " + name)
 			finally:
-				outfile.close()
-				errorfile.close()
+				try:
+					outfile.close()
+					errorfile.close()
+				except:
+					pass
 	
 	def isRunning(self):
 		print("{:16} {:^16} {:^16} {:^16}\n".format("Name","Status", "pid", "exitcode"))
@@ -166,6 +171,16 @@ class taskmaster(threading.Thread):
 	def printit():
 		threading.Timer(5.0, printit).start()
 		print ("Hello, World!")
+
+class Logger:
+	def __init__(self, pathdir):
+		self.dirpath = pathdir
+
+	def log(self, msg):
+		with open(self.dirpath + "logfile.task", "a+") as logger:
+			logger.write(msg)
+		logger.close()
+
 
 def check_command(name, t):
 	if ("kill" in name):
