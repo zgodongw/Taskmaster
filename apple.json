@@ -10,7 +10,8 @@
 		"Sublime": {
 			"cmd": "/Applications/Sublime Text.app/Contents/MacOS/Sublime Text",
 			"autostart": false,
-			"numprocs" : 1,
+			"numprocs" : 2,
+			"stopsignal" : "INT",
 			"stdout": "./tmp/Sublime.stdout",
 			"stderr": "./tmp/Sulime.stderr"
 		},
