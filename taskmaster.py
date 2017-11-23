@@ -1,5 +1,6 @@
 from subprocess import *
 import sys
+import os, signal
 import threading
 import json
 import re
@@ -12,7 +13,6 @@ class taskmaster(threading.Thread):
 		self.data = data
 		self.prognames = list(self.data.keys())
 		self.proglist = {}
-		self.nameattributes = {} #maybe i'll neeed this later
 
 	def setKeys(self):
 		for name in self.prognames:
@@ -34,7 +34,7 @@ class taskmaster(threading.Thread):
 				if 'stoptime' not in self.data[name]:
 					self.data[name][''] = 1
 				if 'stopsignal' not in self.data[name]:
-					self.data[name]['stopsignal'] = 'TERM'
+					self.data[name]['stopsignal'] = "HUP"
 				if 'exitcodes' not in self.data[name]:
 					self.data[name]['exitcodes'] = [0]
 				if 'workingdir' not in self.data[name]:
@@ -44,6 +44,24 @@ class taskmaster(threading.Thread):
 			except:
 				pass
 
+	def getSignal(self, s):
+		s = s.upper()
+		if s == "TERM":
+			return signal.SIGTERM
+		if s == "HUP":
+			return signal.SIGHUP
+		if s == "INT":
+			return signal.SIGINT
+		if s == "QUIT":
+			return signal.SIGQUIT
+		if s == "KILL":
+			return signal.SIGKILL
+		if s == "USR1":
+			return signal.SIGUSR1
+		if s == "USR2":
+			return signal.SIGUSR2
+		raise UnknowSignalError()
+
 	def run(self):
 		self.setKeys()
 		for prog in self.prognames:
@@ -51,20 +69,37 @@ class taskmaster(threading.Thread):
 			if (self.data[prog]['autostart'] == True):
 				self.starting(prog)
 		
-	def	kill(self, string, stop=False, out=False):
+	def	kill(self, string, pid=None, stop=False, out=False):
 		for name in self.prognames:
 			for x in range(self.data[name]['numprocs']):
 				if ((name == string or string == "all") and (self.proglist[name] != None)):
-					if stop  == False:
-						kill = self.proglist[name][x][0].kill()
-					elif stop == True:
-						kill = self.proglist[name][x][0].terminate()
-					if out == True:
-						print(name + " has been killed!")
+					if (pid == self.proglist[name][x][1] or pid == None):
+						if stop == False:
+							try:
+								os.kill(self.proglist[name][x][1], self.getSignal(self.data[name]['stopsignal']))
+							except:
+								pass
+						elif stop == True:
+							kill = self.proglist[name][x][0].kill()
+						if out == True:
+							print(name + " has been killed!")
 	
 	def	restarting(self, string):
 		self.kill(string)
 		self.starting(string, run=True)
+
+	def reloadconf(self, name):
+		try:
+			with open (name, "r") as data_file:
+				filedata = json.load(data_file)
+			self.data = None
+			self.data = filedata['programs']
+			self.prognames = list(self.data.keys())
+			self.run()
+		except:
+			print("Error: Invalid config file!")
+			print("Config file must be a valid JSON file")
+
 
 	def	starting(self, string, run=False):
 		for name in self.prognames:
