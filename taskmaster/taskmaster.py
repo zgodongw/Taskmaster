@@ -88,10 +88,10 @@ class taskmaster(threading.Thread):
 						if out == True:
 							print(name + " has been killed!")
 	
-	def	restarting(self, string, rpid=None):
+	def	restarting(self, string, rpid=None, retry=0):
 		try:
 			self.kill(string, pid=rpid)
-			self.starting(string, run=True)
+			self.starting(string, run=True, retry=retry)
 		except:
 			print("Could restart the process. please start it")
 
@@ -112,7 +112,7 @@ class taskmaster(threading.Thread):
 			os.environ[key] = self.data[name]['env'][key]
 
 
-	def	starting(self, string, run=False):
+	def	starting(self, string, run=False, retry=0):
 		for name in self.prognames:
 			try:
 				outfile		= open(self.data[name]['stdout'], "a+")
@@ -137,7 +137,7 @@ class taskmaster(threading.Thread):
 							tostart = re.split('\ (?=-)', self.data[name]['cmd'])
 							Pobj = Popen(tostart, stdout=outfile, stderr=errorfile, cwd=wkdir)
 							pid = Pobj.pid
-							dictpointer[x] = [Pobj, pid, 0]
+							dictpointer[x] = [Pobj, pid, retry]
 						if (dictpointer != {}):
 							self.proglist[name] = dictpointer
 			except:
@@ -158,7 +158,8 @@ class taskmaster(threading.Thread):
 					if status == codes:
 						break
 				else:
-					pass
+					if self.proglist[name][x][2] < self.data[name]['startretries']:
+						self.restarting(name, rpid=self.proglist[name][x][1], retry=self.proglist[name][x][2] + 1)
 
 	def isRunning(self):
 		print("{:16} {:^16} {:^16} {:^16}\n".format("Name","Status", "pid", "exitcode"))
