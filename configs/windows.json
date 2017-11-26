@@ -1,0 +1,26 @@
+{
+	"programs": {
+		"filewriter": {
+			"cmd": "filewriter",
+			"autostart": false,
+			"numprocs": 1,
+			"stdout": "./tmp/filewriter.stdout",
+			"stderr":"./tmp/filewriter.stderr"
+		},
+		"notepad": {
+			"cmd": "notepad",
+			"autostart": false,
+			"numprocs" : 1,
+			"stdout": "./tmp/Sublime.stdout",
+			"stderr": "./tmp/Sulime.stderr"
+		},
+		"list": {
+			"cmd": "ls -l",
+			"numprocs": 1,
+			"autostart": false,
+			"stdout" : "./tmp/list.stdout",
+			"stderr" : "./tmp/list.stderr"
+		}
+
+	}
+}
