@@ -3,8 +3,11 @@
 		"filewriter": {
 			"cmd": "./filewriter",
 			"autostart": false,
+			"autorestart": "always",
 			"numprocs": 1,
-			"stopsignal" : "USR1",
+			"stopsignal" : "TERM",
+			"startretries":3,
+			"exitcodes": [0, 1],
 			"stdout": "./tmp/filewriter.stdout",
 			"stderr":"./tmp/filewriter.stderr"
 		},

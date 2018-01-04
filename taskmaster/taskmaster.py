@@ -4,8 +4,10 @@ import os, signal
 import threading
 import json
 import re
+import colors
 import logging
 
+logging.basicConfig(filename='Taskmaster.log', level=logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
 
 class taskmaster(threading.Thread):
 	def __init__(self, data):
@@ -63,7 +65,7 @@ class taskmaster(threading.Thread):
 			return signal.SIGUSR1
 		if s == "USR2":
 			return signal.SIGUSR2
-		raise UnknowSignalError()
+		raise signal.UnknowSignalError()
 
 	def run(self):
 		self.setKeys()
@@ -93,9 +95,9 @@ class taskmaster(threading.Thread):
 			self.kill(string, pid=rpid)
 			self.starting(string, run=True, retry=retry)
 		except:
-			print("Could restart the process. please start it")
+			print("Couldn't restart the process. please start it")
 
-	def reloadconf(self, name):
+	def reloadConf(self, name):
 		try:
 			with open (name, "r") as data_file:
 				filedata = json.load(data_file)
@@ -111,7 +113,6 @@ class taskmaster(threading.Thread):
 		for key in self.data[name]['env']:
 			os.environ[key] = self.data[name]['env'][key]
 
-
 	def	starting(self, string, run=False, retry=0):
 		for name in self.prognames:
 			try:
@@ -122,7 +123,7 @@ class taskmaster(threading.Thread):
 				errorfile	= open(self.data[name]['stderr'], "a+")
 			except:
 				errorfile	= PIPE 
-			
+
 			try:
 				os.umask(self.data[name]['umask'])
 				self.setenv(name)
@@ -135,46 +136,70 @@ class taskmaster(threading.Thread):
 					for x in range(self.data[name]['numprocs']):
 						if (name == string):			
 							tostart = re.split('\ (?=-)', self.data[name]['cmd'])
+							logging.info('Starting {}'.format(tostart))
 							Pobj = Popen(tostart, stdout=outfile, stderr=errorfile, cwd=wkdir)
 							pid = Pobj.pid
 							dictpointer[x] = [Pobj, pid, retry]
 						if (dictpointer != {}):
 							self.proglist[name] = dictpointer
 			except:
-				print("Error couldn't open " + name)
+				print("Error: couldn't open {}".format(name))
 			finally:
 				try:
 					outfile.close()
 					errorfile.close()
 				except:
 					pass
-	def checkall(self, signal, frame):
+	def checkAll(self, signal, frame):
 		for name in self.prognames:
 			if (self.proglist[name] == None):
 				continue
 			for x in range(self.data[name]['numprocs']):
-				status = self.proglist[name][x][0].poll()
+				varretry = self.proglist[name][x][2]
+				pobj = self.proglist[name][x][0]
+				varpid = self.proglist[name][x][1]
+				status = pobj.poll()
 				for codes in self.data[name]['exitcodes']:
-					if status == codes:
+					if status == codes or status == -9:
+						logging.info('{} finished successfully.'.format(name))
 						break
 				else:
-					if self.proglist[name][x][2] < self.data[name]['startretries']:
-						self.restarting(name, rpid=self.proglist[name][x][1], retry=self.proglist[name][x][2] + 1)
+					logging.info('{} stopped unexpectedly.'.format(name))
+					if self.data[name]['autorestart'] is not "never":
+						if varretry < self.data[name]['startretries']:
+							logging.info('Restarting {}'.format(name))
+							self.restarting(name, rpid=varpid, retry=varretry + 1)
+						else:
+							logging.info('{} crashed, restart attempts timedout.'.format(name))
+
+	def formatPrint(self, name, status, pid, exitcode):
+		if status == "RUNNING":
+			typeColor = colors.GREEN
+		elif status == "EXITED":
+			typeColor = colors.BLUE
+		elif status == "STOPPED":
+			typeColor = colors.YELLOW
+		elif status == "NONE":
+			typeColor = colors.RESET
+		else:
+			typeColor = colors.RED
+		print("{}{:16} {}{:^16} {}{:^16} {:^16}{}"
+		.format(colors.BOLD,name,typeColor,status,colors.WHITE ,pid, exitcode, colors.RESET))
 
 	def isRunning(self):
-		print("{:16} {:^16} {:^16} {:^16}\n".format("Name","Status", "pid", "exitcode"))
+		print("{}{:16} {:^16} {:^16} {:^16}{}\n".format(colors.BOLD,"Name","Status", "pid", "exitcode", colors.RESET))
 		for name in self.prognames:
 				if (self.proglist[name] == None):
-					print("{:16} {:^16} {:^16} {:^16}".format(name,"NONE", 0, "None"))
+					self.formatPrint(name, "NONE", 0, "None")
 					continue
 				for x in range(self.data[name]['numprocs']):
-					status = self.proglist[name][x][0].poll()
+					code = self.proglist[name][x][0].poll()
 					pid = self.proglist[name][x][1]
-					if (status  == None):
-						print("{:16} {:^16} {:^16} {:^16}".format(name,"RUNNING", pid, "None"))
-					elif (status == 0 or status == 2):
-						print("{:16} {:^16} {:^16} {:^16}".format(name,"EXITED", pid, status))
-					elif (status == -9):
-						print("{:16} {:^16} {:^16} {:^16}".format(name,"STOPPED", pid, status))
+					if (code  == None):
+						self.formatPrint(name, "RUNNING", pid, "None")
+					elif (code == 0 or code == 2):
+						self.formatPrint(name, "EXITED", pid, code)
+					elif (code == -9):
+						self.formatPrint(name, "STOPPED", pid, code)
 					else:
-						print("{:16} {:^16} {:^16} {:^16}".format(name,"FATAL", pid, status))
+						self.formatPrint(name, "FATAL", pid, code)

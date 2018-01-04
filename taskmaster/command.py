@@ -1,6 +1,9 @@
 import colors
+import logging
 
-def printhelp():
+logging.basicConfig(filename='Taskmaster.log', level=logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
+
+def printHelp():
 	with open("help.txt", 'r') as f_help:
 		for line in f_help:
 			print(line)
@@ -23,15 +26,15 @@ def check_command(name, t):
 		elif (len(sub) == 3):
 			t.kill(sub[1],pid=int(sub[2]), stop=True)
 		else:
-			print("Syntax Error!\nUsage: start <program> [<pid>]")
+			print("Syntax Error!\nUsage: stop <program> [<pid>]")
 		return 0
 
 	if name == "status":
 		t.isRunning()
 		return 0
-	
+
 	if name == "help":
-		printhelp()
+		printHelp()
 		return 0
 
 	if name == "clear":
@@ -43,9 +46,11 @@ def check_command(name, t):
 		if (len(sub) == 2):
 			responce = input("Are you sure? (y/n) ")
 			if (responce == 'y' or responce == 'yes'):
+				logging.info('Attemping to reload.')
 				print("Reloading...")
-				t.reloadconf(sub[1])
+				t.reloadConf(sub[1])
 				print("Done!")
+				logging.info('Reload attempt complete.')
 		else:
 			print("Syntax Error!\nUsage: start <program>")
 		return 0
@@ -57,7 +62,7 @@ def check_command(name, t):
 		elif (len(sub) == 3):
 			t.restarting(sub[1],rpid=int(sub[2]))
 		else:
-			print("Syntax Error!\nUsage: restart <program>")
+			print("Syntax Error!\nUsage: restart <program> [<pid>]")
 		return 0
 	elif ("start" in name):
 		sub = name.split()
