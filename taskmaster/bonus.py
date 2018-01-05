@@ -35,4 +35,4 @@ def sendLogReport(toaddr):
 		server.sendmail(fromaddr, toaddr, msg)
 		server.quit()
 	except:
-		print("Error occured while try to send a log report! Please check email address")
+		print("Error occured while try to send a log report! Please check email address") 

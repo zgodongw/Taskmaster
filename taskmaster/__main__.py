@@ -67,7 +67,3 @@ if (__name__ == '__main__'):
 	else:
 			print("Warning: No config file given")
 			print("Cannot run Taskmaster without config file")
-
-'''
-NUMBER OF PROCESSES HAS AN ERROR ON RELOAD
-'''
