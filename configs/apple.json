@@ -15,9 +15,9 @@
 			"cmd": "/Applications/Sublime Text.app/Contents/MacOS/Sublime Text",
 			"autostart": false,
 			"numprocs" : 2,
-			"stopsignal" : "KILL",
+			"stopsignal" : "HUP",
 			"stdout": "./tmp/Sublime.stdout",
-			"stderr": "./tmp/Sulime.stderr",
+			"stderr": "./tmp/Sublime.stderr",
 			"exitcodes": [0, 1, 5],
 			"env": {
 				"ANSWER": "42",

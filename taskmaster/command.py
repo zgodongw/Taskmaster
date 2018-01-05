@@ -1,14 +1,29 @@
 import colors
 import logging
+from subprocess import *
 
 logging.basicConfig(filename='Taskmaster.log', level=logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
 
-def printHelp():
-	with open("help.txt", 'r') as f_help:
-		for line in f_help:
-			print(line)
 
-def check_command(name, t):
+
+def printHelp():
+	try:
+		less = Popen(['less', 'help.txt'])
+		less.wait()
+	except:
+		with open("help.txt", 'r') as f_help:
+			for line in f_help:
+				print(line)
+
+def check_command(name, t, user):
+
+	humanCommands = ['kill', 'start', 'stop', 'exit', 'quit','clear', 'help', 'status']
+
+	if user == 'human':
+		sub = name.split()
+		if sub[0] not in humanCommands:
+			return 42
+
 	if ("kill" in name):
 		sub = name.split()
 		if (len(sub) == 2):

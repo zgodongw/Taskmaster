@@ -155,7 +155,7 @@ class taskmaster(threading.Thread):
 			if (self.proglist[name] == None):
 				continue
 			for x in range(self.data[name]['numprocs']):
-				varretry = self.proglist[name][x][2]
+				retryCount = self.proglist[name][x][2]
 				pobj = self.proglist[name][x][0]
 				varpid = self.proglist[name][x][1]
 				status = pobj.poll()
@@ -166,9 +166,9 @@ class taskmaster(threading.Thread):
 				else:
 					logging.info('{} stopped unexpectedly.'.format(name))
 					if self.data[name]['autorestart'] is not "never":
-						if varretry < self.data[name]['startretries']:
+						if retryCount < self.data[name]['startretries']:
 							logging.info('Restarting {}'.format(name))
-							self.restarting(name, rpid=varpid, retry=varretry + 1)
+							self.restarting(name, rpid=varpid, retry=retryCount + 1)
 						else:
 							logging.info('{} crashed, restart attempts timedout.'.format(name))
 
@@ -187,7 +187,8 @@ class taskmaster(threading.Thread):
 		.format(colors.BOLD,name,typeColor,status,colors.WHITE ,pid, exitcode, colors.RESET))
 
 	def isRunning(self):
-		print("{}{:16} {:^16} {:^16} {:^16}{}\n".format(colors.BOLD,"Name","Status", "pid", "exitcode", colors.RESET))
+		print("{}{:16} {:^16} {:^16} {:^16}{}\n"
+		.format(colors.BOLD,"Name","Status", "pid", "exitcode", colors.RESET))
 		for name in self.prognames:
 				if (self.proglist[name] == None):
 					self.formatPrint(name, "NONE", 0, "None")
@@ -197,7 +198,7 @@ class taskmaster(threading.Thread):
 					pid = self.proglist[name][x][1]
 					if (code  == None):
 						self.formatPrint(name, "RUNNING", pid, "None")
-					elif (code == 0 or code == 2):
+					elif code in self.data[name]['exitcodes']:
 						self.formatPrint(name, "EXITED", pid, code)
 					elif (code == -9):
 						self.formatPrint(name, "STOPPED", pid, code)
