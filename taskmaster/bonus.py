@@ -16,10 +16,23 @@ def getUser(optargs):
 			var = getGodPassword()
 			if var == 1:
 				return 'God'
-		else:
 			return 'human'
 	else:
 		return 'human'
 
-def sendLogReport(toaddress):
-    pass
+def sendLogReport(toaddr):
+	print("Please wait we send a log report...")
+    
+	fromaddr = 'taskmaster.logreport@gmail.com'
+
+	with open("Taskmaster.log", 'r') as task:
+		string = task.read()
+	try:
+		msg = "Subject: {}\n\n{}".format("Log Report", "TASKMASTER LOG REPORT\n\n\n" + string)
+		server = smtplib.SMTP('smtp.gmail.com', 587)
+		server.starttls()
+		server.login(fromaddr, 'turtledove')
+		server.sendmail(fromaddr, toaddr, msg)
+		server.quit()
+	except:
+		print("Error occured while try to send a log report! Please check email address")

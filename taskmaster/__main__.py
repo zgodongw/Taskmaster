@@ -49,7 +49,7 @@ def main(*args):
 		filedata = loadConf(args[0])
 		interface(filedata['programs'], args[1])
 		if args[2] != None:
-			sendLogReport(optargs[3])
+			sendLogReport(args[2])
 	except:
 		pass
 
