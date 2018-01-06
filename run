@@ -1,1 +1,1 @@
-python3 taskmaster $1 -c ./configs/apple.json -u God -e zenandegng@gmail.com
+python3 taskmaster $1 -c ./configs/apple.json -u God
