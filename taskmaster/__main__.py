@@ -3,12 +3,13 @@ import sys, signal
 import threading
 import json
 import re
-import command
+from command import command
 import logging
 import colors
 from taskmaster import taskmaster
 from bonus import *
 import optparse
+import cmd
 
 logging.basicConfig(filename='Taskmaster.log', level=logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
 
@@ -16,24 +17,17 @@ def interface(data, user):
 	try:
 		logging.info('Starting taskmaster as {}'.format(user))
 		t = taskmaster(data,)
-		t.start()
 
-		signal.signal(signal.SIGCHLD, t.checkAll)
-		while (True):
-			cmd = input("{}{}[Taskmaster]$ {}".format(colors.BOLD, colors.GREEN, colors.RESET))
-			cmd = cmd.strip()
-			check = command.check_command(cmd, t, user)
-			if (check == -1):
-				logging.info('Taskmaster finished')
-				break
-			if (check == 42):
-				print('Taskmaster: Command not available to humans : {}\nSee help'.format(cmd))
-			if (check == 1):
-				print("Error: Unknown command: " + cmd)
+		task = command()
+		task.user = user
+		task.t = t
+		task.cmdloop()
+
 	except:
 		print("An Taskmaster shell error occured")
 	finally:
 		t.join()
+
 
 def loadConf(name):
 	try:
@@ -58,12 +52,16 @@ if (__name__ == '__main__'):
 
 	parser.add_option('-c', dest='configName', help="Config name", type="string")
 	parser.add_option('-u', dest='userName', help="User either God or human", type="string")
-	parser.add_option('-e', dest='emailAdd', help="Email Address for log report", type="string")
+	parser.add_option('-e', dest='emailAddress', help="Email Address for log report", type="string")
 
 	(option, args) = parser.parse_args()
 
 	if (option.configName != None):
-			main(option.configName, getUser(option.userName), option.emailAdd)
+		main(option.configName, getUser(option.userName), option.emailAddress)
 	else:
-			print("Warning: No config file given")
-			print("Cannot run Taskmaster without config file")
+		print("Warning: No config file given")
+		print("Cannot run Taskmaster without config file")
+
+'''
+NUMBER OF PROCESSES HAS AN ERROR ON RELOAD
+'''

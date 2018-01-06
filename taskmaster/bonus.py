@@ -1,9 +1,10 @@
 import smtplib
+import getpass
 
 def getGodPassword():
 	print("Warning: The God privelege is only for those who truly\nunderstand the taskmaster!\n")
 
-	passwd = input('Please enter God Password: ')
+	passwd = getpass.getpass('Please enter God Password: ')
 	if passwd == 'turtledove':
 		return 1
 	print("Error: Incorrect password! : God Privelege denied!\nLogging in as human...")
@@ -16,9 +17,8 @@ def getUser(optargs):
 			var = getGodPassword()
 			if var == 1:
 				return 'God'
-			return 'human'
-	else:
 		return 'human'
+	return 'human'
 
 def sendLogReport(toaddr):
 	print("Please wait we send a log report...")
@@ -35,4 +35,4 @@ def sendLogReport(toaddr):
 		server.sendmail(fromaddr, toaddr, msg)
 		server.quit()
 	except:
-		print("Error occured while try to send a log report! Please check email address") 
+		print("Error occured while try to send a log report! Please check email address")

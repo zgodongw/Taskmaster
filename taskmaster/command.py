@@ -1,9 +1,10 @@
 import colors
 import logging
+import cmd
+import signal
 from subprocess import *
 
 logging.basicConfig(filename='Taskmaster.log', level=logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
-
 
 
 def printHelp():
@@ -15,82 +16,88 @@ def printHelp():
 			for line in f_help:
 				print(line)
 
-def check_command(name, t, user):
 
-	humanCommands = ['kill', 'start', 'stop', 'exit', 'quit','clear', 'help', 'status']
+class command(cmd.Cmd):
+	intro = None
+	prompt = "{}{}[Taskmaster]$ {}".format(colors.BOLD, colors.GREEN, colors.RESET)
+	file = None
+	user = str()
+	t = None
 
-	if user == 'human':
-		sub = name.split()
-		if sub[0] not in humanCommands:
-			return 42
+	def preloop(self):
+		self.t.start()
+		signal.signal(signal.SIGCHLD, self.t.checkAll)
+	
+	def default(self, arg):
+		print("Error: Unknown command: " + arg)
+	
+	def do_help(self, arg):
+		try:
+			less = Popen(['less', 'help.txt'])
+			less.wait()
+		except:
+			with open("help.txt", 'r') as f_help:
+				for line in f_help:
+					print(line)
 
-	if ("kill" in name):
-		sub = name.split()
-		if (len(sub) == 2):
-			t.kill(sub[1], out=True)
-		elif (len(sub) == 3):
-			t.kill(sub[1],pid=int(sub[2]), out=True)
+	def do_status(self, arg):
+		self.t.isRunning()
+	
+	def do_clear(self, arg):
+		print(colors.CLEAR, end="")
+
+	def do_kill(self, arg):
+		sub = arg.split()
+		if (len(sub) == 1):
+			self.t.kill(sub[0], out=True)
+		elif (len(sub) == 2):
+			self.t.kill(sub[0],pid=int(sub[1]), out=True)
 		else:
 			print("Syntax Error!\nUsage: kill <program> [<pid>]")
-		return 0
-
-	if ("stop" in name):
-		sub = name.split()
-		if (len(sub) == 2):
-			t.kill(sub[1], stop=True)
-		elif (len(sub) == 3):
-			t.kill(sub[1],pid=int(sub[2]), stop=True)
+	
+	def do_stop(self, arg):
+		sub = arg.split()
+		if (len(sub) == 1):
+			self.t.kill(sub[0], stop=True)
+		elif (len(sub) == 2):
+			self.t.kill(sub[0],pid=int(sub[1]), stop=True)
 		else:
-			print("Syntax Error!\nUsage: stop <program> [<pid>]")
-		return 0
+			print("Syntax Error!\nUsage: kill <program> [<pid>]")
 
-	if name == "status":
-		t.isRunning()
-		return 0
-
-	if name == "help":
-		printHelp()
-		return 0
-
-	if name == "clear":
-		print(colors.CLEAR, end="")
-		return 0
-
-	if ("reload" in name):
-		sub = name.split()
-		if (len(sub) == 2):
-			responce = input("Are you sure? (y/n) ")
-			if (responce == 'y' or responce == 'yes'):
-				logging.info('Attemping to reload.')
-				print("Reloading...")
-				t.reloadConf(sub[1])
-				print("Done!")
-				logging.info('Reload attempt complete.')
+	def do_start(self, arg):
+		if arg:
+			self.t.starting(arg)
 		else:
 			print("Syntax Error!\nUsage: start <program>")
-		return 0
-
-	if ("restart" in name):
-		sub = name.split()
-		if (len(sub) > 1):
-			t.restarting(sub[1])
-		elif (len(sub) == 3):
-			t.restarting(sub[1],rpid=int(sub[2]))
+	
+	def do_restart(self, arg):
+		if self.user == "God":
+			sub = arg.split()
+			if (len(sub) == 1):
+				self.t.restarting(sub[0])
+			elif (len(sub) == 2):
+				self.t.restarting(sub[0],rpid=int(sub[1]))
+			else:
+				print("Syntax Error!\nUsage: restart <program> [<pid>]")
 		else:
-			print("Syntax Error!\nUsage: restart <program> [<pid>]")
-		return 0
-	elif ("start" in name):
-		sub = name.split()
-		if (len(sub) > 1):
-			t.starting(sub[1])
+			print('Taskmaster: Command not available to humans : restart\nSee help.')
+	
+	def do_reload(self, arg):
+		if self.user == "God":
+			sub = arg.split()
+			if (len(sub) == 1):
+				responce = input("Are you sure? (y/n) ")
+				if (responce == 'y' or responce == 'yes'):
+					logging.info('Attemping to reload.')
+					print("Reloading...")
+					self.t.reloadConf(sub[0])
+					print("Done!")
+					logging.info('Reload attempt complete.')
+			else:
+				print("Syntax Error!\nUsage: start <program>")
 		else:
-			print("Syntax Error!\nUsage: start <program>")
-		return 0
+			print('Taskmaster: Command not available to humans : reload\nSee help.')
 
-	if (name == "exit" or name == "quit"):
-		t.kill('all')
-		return -1
-	if not name.strip():
-		return 12
-
-	return 1
+	def do_exit(self, arg):
+		self.t.kill('all')
+		return True
