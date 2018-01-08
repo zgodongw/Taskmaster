@@ -9,7 +9,6 @@ import colors
 from taskmaster import taskmaster
 from bonus import *
 import optparse
-import cmd
 
 logging.basicConfig(filename='Taskmaster.log', level=logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
 
@@ -46,7 +45,6 @@ def main(*args):
 			sendLogReport(args[2])
 	except:
 		pass
-
 if (__name__ == '__main__'):
 	parser = optparse.OptionParser("Usage: -c <config file name>\n -u <User: either God or human>\n -e <email>")
 
@@ -63,5 +61,5 @@ if (__name__ == '__main__'):
 		print("Cannot run Taskmaster without config file")
 
 '''
-NUMBER OF PROCESSES HAS AN ERROR ON RELOAD
+NUMBER OF PROCESSES HAS AN ERROR ON RELOAD AND RESTART
 '''

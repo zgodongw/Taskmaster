@@ -6,6 +6,7 @@ import json
 import re
 import colors
 import logging
+from time import sleep
 
 logging.basicConfig(filename='Taskmaster.log', level=logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
 
@@ -77,22 +78,24 @@ class taskmaster(threading.Thread):
 		
 	def	kill(self, string, pid=None, stop=False, out=False):
 		for name in self.prognames:
-			for x in range(self.data[name]['numprocs']):
+			for process in range(self.data[name]['numprocs']):
 				if ((name == string or string == "all") and (self.proglist[name] != None)):
-					if (pid == self.proglist[name][x][1] or pid == None):
+					if (pid == self.proglist[name][process][1] or pid == None):
 						if stop == False:
 							try:
-								os.kill(self.proglist[name][x][1], self.getSignal(self.data[name]['stopsignal']))
+								os.kill(self.proglist[name][process][1], self.getSignal(self.data[name]['stopsignal']))
 							except:
 								pass
 						elif stop == True:
-							kill = self.proglist[name][x][0].kill()
+							kill = self.proglist[name][process][0].kill()
 						if out == True:
 							print(name + " has been killed!")
 	
 	def	restarting(self, string, rpid=None, retry=0):
 		try:
+			print("Restarting {}...".format(string))
 			self.kill(string, pid=rpid)
+			sleep(1)
 			self.starting(string, run=True, retry=retry)
 		except:
 			print("Couldn't restart the process. please start it")
@@ -133,13 +136,13 @@ class taskmaster(threading.Thread):
 			dictpointer = {}
 			try:
 				if (name == string and (self.proglist[name] == None or run == True)):
-					for x in range(self.data[name]['numprocs']):
+					for process in range(self.data[name]['numprocs']):
 						if (name == string):			
 							tostart = re.split('\ (?=-)', self.data[name]['cmd'])
-							logging.info('Starting {}'.format(tostart))
+							logging.info('Starting {}'.format(name))
 							Pobj = Popen(tostart, stdout=outfile, stderr=errorfile, cwd=wkdir)
 							pid = Pobj.pid
-							dictpointer[x] = [Pobj, pid, retry]
+							dictpointer[process] = [Pobj, pid, retry]
 						if (dictpointer != {}):
 							self.proglist[name] = dictpointer
 			except:
@@ -150,14 +153,15 @@ class taskmaster(threading.Thread):
 					errorfile.close()
 				except:
 					pass
+
 	def checkAll(self, signal, frame):
 		for name in self.prognames:
 			if (self.proglist[name] == None):
 				continue
-			for x in range(self.data[name]['numprocs']):
-				retryCount = self.proglist[name][x][2]
-				pobj = self.proglist[name][x][0]
-				varpid = self.proglist[name][x][1]
+			for process in range(self.data[name]['numprocs']):
+				retryCount = self.proglist[name][process][2]
+				pobj = self.proglist[name][process][0]
+				varpid = self.proglist[name][process][1]
 				status = pobj.poll()
 				for codes in self.data[name]['exitcodes']:
 					if status == codes or status == -9:
@@ -172,6 +176,7 @@ class taskmaster(threading.Thread):
 						else:
 							logging.info('{} crashed, restart attempts timedout.'.format(name))
 
+	
 	def formatPrint(self, name, status, pid, exitcode):
 		if status == "RUNNING":
 			typeColor = colors.GREEN
@@ -193,9 +198,9 @@ class taskmaster(threading.Thread):
 				if (self.proglist[name] == None):
 					self.formatPrint(name, "NONE", 0, "None")
 					continue
-				for x in range(self.data[name]['numprocs']):
-					code = self.proglist[name][x][0].poll()
-					pid = self.proglist[name][x][1]
+				for process in range(self.data[name]['numprocs']):
+					code = self.proglist[name][process][0].poll()
+					pid = self.proglist[name][process][1]
 					if (code  == None):
 						self.formatPrint(name, "RUNNING", pid, "None")
 					elif code in self.data[name]['exitcodes']:
@@ -204,3 +209,7 @@ class taskmaster(threading.Thread):
 						self.formatPrint(name, "STOPPED", pid, code)
 					else:
 						self.formatPrint(name, "FATAL", pid, code)
+
+	def unitTest(self):
+		for name in self.prognames:
+			print(self.proglist[name])
