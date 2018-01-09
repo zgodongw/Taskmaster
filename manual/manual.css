@@ -1,0 +1,39 @@
+body {
+    background-image: url('https://i.pinimg.com/736x/f1/8a/27/f18a27fc93edf8c6513434294ee57cdb--old-wood-texture-wood-texture-background.jpg');
+}
+
+.background {
+    background-color: #d5dbe5;
+    width: 85%;
+    margin: auto
+}
+
+img {
+    margin-left:35%;
+    height: 300px;
+}
+
+#heading {
+    text-align: center;
+    color: #3a3b3d;
+    font-family: Cambria, Cochin, Georgia, Times, Times New Roman, serif;
+}
+
+h1 {
+    font-size: 60px;
+}
+
+.about {
+    padding-left: 20px;
+}
+
+code {
+    background-color: #fff6db;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.bodyclass {
+    padding-left: 20px;
+    padding-bottom: 10px;
+}
