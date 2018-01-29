@@ -169,7 +169,7 @@ class taskmaster(threading.Thread):
 						break
 				else:
 					logging.info('{} stopped unexpectedly.'.format(name))
-					if self.data[name]['autorestart'] is not "never":
+					if self.data[name]['autorestart'] != "never":
 						if retryCount < self.data[name]['startretries']:
 							logging.info('Restarting {}'.format(name))
 							self.restarting(name, rpid=varpid, retry=retryCount + 1)
