@@ -1,82 +1,167 @@
-<html>
-    <head>
-            <title>Manual</title>
-            <link rel="stylesheet" type="text/css" href="manual.css">
-    </head>
-    <body>
-        <div class="background">
-            <div class="tasklogo"><img src="tasklogo.png" alt=""></div>
-            <div cless="heading">
-                <!-- <H1 id="heading">Taskmaster:</H1> -->
-                <h4 id="heading">Leather vest, bullwhip, sadistic tendencies... LGTM.</h5>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <title>Manual</title>
+</head>
+<body>
+        <div class="container">
+            <div class="section grey lighten-4 center-align">
+                    <img class="responsive-img" src="tasklogo.png" alt="tasklogo">
+                    <h6>Leather vest, bullwhip, sadistic tendencies... LGTM.</h6>
             </div>
 
-            <div class="about">
-                <h2>About:</h3>
-                <p>This program is able to start jobs as child processes, and keep them alive, restart-<br/>
-                ing them if necessary. It also knows at all times if these processes are alive or dead.
-                <br/><br/>
-                Information on which programs must be started, how, how many, if they must be
-                restarted, etc... <br/>will be contained in a <a
-                href="https://github.com/KratosMultiphysics/Kratos/wiki/How-to-write-a-JSON-configuration-file">
-                JSON</a> configuration file.
-                <br/><br/>
-                This program provides a controll shell that comes with the commands:
-                status, help, start, restart, kill, stop, reload, exit</p>
+            <div class="divider"></div>
+
+            <div class="section center-align">
+                <h3>About</h3>
+
+                <p>This program is able to start jobs as child processes, and keep them alive, restarting <br/>
+                    them if necessary. It also knows at all times if these processes are alive or dead.
+                    <br/><br/>
+                    Information on which programs must be started, how, how many, if they must be
+                    restarted, etc... <br/>will be contained in a <a
+                    href="https://github.com/KratosMultiphysics/Kratos/wiki/How-to-write-a-JSON-configuration-file">
+                    JSON</a> configuration file.
+                    <br/><br/>
+                    This program provides a controll shell that comes with the commands:<br/>
+                    status, help, start, restart, kill, stop, reload, exit</p>
+                
             </div>
-            <div class="bodyclass">
-                <h3> How To Run:</h3>
-                <code> python3 taskmaster $1 -c &lt;config path&gt; [-u &lt;User&gt;] [-e &lt;email&gt;]</code>
 
-                <h3>Commands:</h3>
-
-                <h4>status:</h4>
-
-                    
-                    This command shows the status of all programs descrie in the configuration file.<br/><br/>
-                    Usage: <code>status</code> 
-                <h4>help:</h4>
-                <p>This command will print this help page. <br/><br/>
-                    Usage: <code>help</code></p>
-                <h4>start:</h4>
-                <p>This command will start a program described in the configuration file only <br/>
-                    if it has not been started yet. <br/><br/>
-                    Usage: <code>start &lt;program&gt;</code></p>
-                <h4>restart:</h4>
-                <p>This command will restart a program described in the configuration file only<br/>
-                        if it has been already started yet. (See status)<br/>
-                        Please becareful and used the program name with the pid incase you wan to restart<br/>
-                        a particular instance on the program else it will restart all instances of the program.<br/><br/>
-                        Usage: <code>restart &lt;program&gt; [&lt;pid&gt;]</code></p>
-                <h4>kill:</h4>
-                <p>This command will kill a program described in the configuration file with <br/>
-                        the stopsignal described in the in the configuration file. <br/>
-                        Please becareful and used the program name with the pid incase you want to kill <br/>
-                        a particular instance on the program else it will kill all instances of the program. <br/><br/>
-                        Usage: <code>kill &lt;program&gt; [&lt;pid&gt;]</code>  <br/>
-                        Alternate: <code>kill all</code>    (this will kill all running programs)</p>
-                <h4>stop:</h4>
-                <p>    This command will stop a program described in the configuration file with<br/>
-                        the stopsignal SIGKILL.<br/>
-                        Please becareful and used the program name with the pid incase you want to stop<br/>
-                        a particular instance on the program else it will stop all instances of the program.<br/><br/>
-                        Usage: <code>stop &lt;program&gt; [&lt;pid&gt;]</code> <br/>
-                        Alternate: <code>stop all</code>     (this will stop all running programs)</p>
-                <h4>reload:</h4>
-                <p>    This command will reload a configuration file to the taskmaster program.<br/>
-                        Please be very careful when using this command!<br/>
-                        This will allow to change the attributtes of any programs you want in the<br/>
-                        configuration file.<br/>
-                        You can also add new programs to the configuration file if you like<br/>
-                        but please do not remove any programs from the configuration file as this<br/>
-                        will cause runnaway processes.<br/><br/>
-                        Usage:<code>reload &lt;configuration filename&gt;</code> </p>
-                <h4>exit:</h4>
-                <p>    This command will kill all running programs and quit the Taskmaster program. <br/><br/>
-                    Usage: <code>exit</code><br/>
-                    Alternate: <code>quit</code>   </p>
+            <div class="divider"></div>
+            <div class="section">
+                    <div class="card grey lighten-2">
+                        <div class="card-content black-text">
+                            <span class="card-title">How To Run</span>
+                            <p>This program requires an installation of Python 3, minimum version: 3.3 <br>
+                            Then simply open your terminal and type: <br>
+                            </p>
+                              
+                              <code> python3 taskmaster $1 -c &lt;config path&gt; [-u &lt;User&gt;] [-e &lt;email&gt;]</code>
+                        </div>
+                        <div class="card-action"></div>
+                    </div>
             </div>
+            <div class="divider"></div>
+            <div class="section">
+                <div class="center-align">
+                    <h3>Commands:</h3>
+                </div>
+
+
+            
+
+            <div class="card blue-grey darken-1">
+                <div class="card-content white-text">
+                    <span class="card-title">status</span>
+                    <p>This command shows the status of all programs descrie in the configuration file.</p>
+                </div>
+                <div class="card-action white-text">
+                    <p>Usage: </p> <code>status</code>
+                </div>
+            </div>
+
+            <div class="card blue-grey darken-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">help</span>
+                        <p>This command will print this help page. </p>
+                    </div>
+                    <div class="card-action white-text">
+                        <p>Usage: </p> <code>help</code>
+                    </div>
+                </div>
+
+            <div class="card blue-grey darken-1">
+                <div class="card-content white-text">
+                    <span class="card-title">start</span>
+                    <p>This command will start a program described in the configuration file only if it has not been started yet. </p>
+                </div>
+                <div class="card-action white-text">
+                    <p>Usage: </p> <code>start &lt;program&gt;</code>
+                </div>
+            </div>
+
+            <div class="card blue-grey darken-1">
+                <div class="card-content white-text">
+                    <span class="card-title">restart</span>
+                    <p>This command will restart a program described in the configuration file only
+                        if it has been already started yet. (See status) <br>
+                        Please becareful and used the program name with the pid incase you want to restart
+                        a particular instance on the program else it will restart all instances of the program.
+                        </p>
+                </div>
+                <div class="card-action white-text">
+                    <p>Usage: </p> <code>restart &lt;program&gt; [&lt;pid&gt;]</code>
+                </div>
+            </div>
+
+            <div class="card blue-grey darken-1">
+                <div class="card-content white-text">
+                    <span class="card-title">kill</span>
+                    <p>This command will kill a program described in the configuration file with 
+                        the stopsignal described in the in the configuration file. <br>
+                        Please becareful and used the program name with the pid incase you want to kill 
+                        a particular instance on the program else it will kill all instances of the program.</p>
+                </div>
+                <div class="card-action white-text">
+                    <p>Usage: </p> <code>kill &lt;program&gt; [&lt;pid&gt;]</code>
+                    <p>Alternate: (this will kill all running programs)</p>
+                    <code>kill all</code>
+                </div>
+            </div>
+
+            <div class="card blue-grey darken-1">
+                <div class="card-content white-text">
+                    <span class="card-title">stop</span>
+                    <p>This command will stop a program described in the configuration file with
+                        the stopsignal SIGKILL. <br>
+                        Please becareful and used the program name with the pid incase you want to stop
+                        a particular instance on the program else it will stop all instances of the program.</p>
+                </div>
+                <div class="card-action white-text">
+                    <p>Usage: </p> <code>stop &lt;program&gt; [&lt;pid&gt;]</code>
+                    <p>Alternate: (this will stop all running programs)</p>
+                    <code>stop all</code>
+                </div>
+            </div>
+
+            <div class="card blue-grey darken-1">
+                <div class="card-content white-text">
+                    <span class="card-title">reload</span>
+                    <p>This command will reload a configuration file to the taskmaster program.
+                        Please be very careful when using this command! <br>
+                        This will allow to change the attributtes of any programs you want in the
+                        configuration file. <br>
+                        You can also add new programs to the configuration file if you like
+                        but please do not remove any programs from the configuration file as this
+                        will cause runnaway processes.</p>
+                </div>
+                <div class="card-action white-text">
+                    <p>Usage: </p> <code>status</code>
+                </div>
+            </div>
+
+            <div class="card blue-grey darken-1">
+                <div class="card-content white-text">
+                    <span class="card-title">exit</span>
+                    <p>This command will kill all running programs and quit the Taskmaster program. 
+                    </p>
+                </div>
+                <div class="card-action white-text">
+                    <p>Usage: <code>exit</code>
+                    <p>Alternate: </p> <code>quit</code>
+                </div>
+            </div>
+
+            
+            </div>
+
+            
 
         </div>
-    </body>
+</body>
 </html>
